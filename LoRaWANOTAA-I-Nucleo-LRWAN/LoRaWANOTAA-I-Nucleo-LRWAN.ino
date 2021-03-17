@@ -2,7 +2,7 @@
 #include "LoRaWANNode.h"
 
 #define SEND_BY_PUSH_BUTTON false     // Sending method (Time or Push Button)     
-#define FRAME_DELAY         8000      // Time between 2 frames
+#define FRAME_DELAY         10000      // Time between 2 frames (Minimum 7000)
 #define DATA_RATE           5
 #define ADAPTIVE_DR         false
 #define CONFIRMED           false
@@ -31,15 +31,19 @@ void setup()
     Serial1.println(" JOIN OTAA failed!!! Retry...");
     delay(1000);
   }
-  
   Serial1.println(" JOIN procedure : SUCCESS !\r\n");
-  infoAfterActivation();  
+  if(SEND_BY_PUSH_BUTTON == 0){
+    Serial1.print(" Frame will be sent every ");Serial1.print((FRAME_DELAY<7000)?7000:FRAME_DELAY);Serial1.println("ms\r\n");
+  }
+  else {
+    Serial1.println(" Press Blue Button to send a Frame\r\n");
+  }  
 }
 
 void loop()
 {
   if( SEND_BY_PUSH_BUTTON == 1)   while(digitalRead(PUSHBUTTON)); // Attente Push Button pour envoyer
-  else                            delay(FRAME_DELAY);             // Attente FRAME_DELAY pour envoyer
+  else                            delay((FRAME_DELAY<7000)?0:FRAME_DELAY-7000);  // Attente FRAME_DELAY pour envoyer
   Serial1.print(" Sending Text : \"");Serial1.print(frameTx);Serial1.print("\"");
   if(CONFIRMED)   Serial1.print(" Uplink CONFIRMED on PORT ");
   else            Serial1.print(" Uplink UNCONFIRMED on PORT ");
@@ -78,7 +82,7 @@ void transmit(void) {
   } else if(status == LORA_SEND_DELAYED) {
     Serial1.println(" Module is busy : \r\n * It's still trying to send data \r\n OR * \r\n * You are over your allowed duty cycle");
   } else {
-   Serial1.println(" Frame sent");
+   Serial1.println(" Frame sent. Waiting for Downlink...");
   }
 }
 
@@ -112,27 +116,4 @@ void infoBeforeActivation(void){
     Serial1.print(" * Adaptive Data Rate : OFF");Serial1.println("\r\n");
   }       
   loraNode.setDutyCycle(DISABLE);
-
-
-}
-
-void infoAfterActivation(void){
-  str = " * Network session Key:     0x ";
-  loraNode.getNwkSKey(&str);
-  Serial1.println(str);
-
-  str = " * Application session key: 0x ";
-  loraNode.getAppSKey(&str);
-  Serial1.println(str);
-
-  str = " * Device address:          0x ";
-  loraNode.getDevAddr(&str);
-  Serial1.println(str);Serial1.print("\r\n");
-
-  if(SEND_BY_PUSH_BUTTON == 0){
-    Serial1.print(" Frame will be sent every ");Serial1.print(FRAME_DELAY);Serial1.println(" ms\r\n");
-  }
-  else {
-    Serial1.println(" Press Blue Button to send a Frame\r\n");
-  }
 }
