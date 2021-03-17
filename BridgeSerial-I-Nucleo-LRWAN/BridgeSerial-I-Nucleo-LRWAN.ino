@@ -9,9 +9,14 @@ void setup()
 {
   Serial1.begin(115200);
   SerialLora.begin(115200);
+  Serial1.println("\r\n\r\n\r\n");
+  Serial1.println("########################################");
+  Serial1.println("######## LoRaWAN Training Session ######");
+  Serial1.println("#########     Bridge Serial     ########\r\n");
+  Serial1.println(" Enter an AT command en press Enter (CR).\r\n");
 }
 
-// The loop function runs over and over again forever
+
 void loop()
 {
   char c;
