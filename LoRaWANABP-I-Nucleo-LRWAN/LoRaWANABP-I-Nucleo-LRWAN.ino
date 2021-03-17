@@ -1,10 +1,10 @@
 #include "LoRaWANNode.h"
 
 #define SEND_BY_PUSH_BUTTON false     // Sending method (Time or Push Button)    
-#define FRAME_DELAY         8000      // Time between 2 frames
+#define FRAME_DELAY         10000      // Time between 2 frames (Minimum 7000)
 #define DATA_RATE           5
 #define ADAPTIVE_DR         false
-#define  CONFIRMED          false
+#define CONFIRMED           false
 #define PORT                1
 
 HardwareSerial SerialLora(D0, D1); // D0(Rx) D1(TX)
@@ -19,7 +19,7 @@ char frameTx[] = "Hello";
 String str;
 
 void setup()
-{
+{  
   Serial1.begin(115200);
   pinMode(PUSHBUTTON, INPUT);
   infoBeforeActivation();
@@ -29,6 +29,7 @@ void setup()
     Serial1.println(" The Device is not activated on the Server!!");
     delay(1000);
   }
+  
    Serial1.println(" Device activated on the Server : SUCCESS!!\r\n");
   infoAfterActivation();
 }
@@ -36,7 +37,7 @@ void setup()
 void loop()
 {
   if( SEND_BY_PUSH_BUTTON == 1)   while(digitalRead(PUSHBUTTON)); // Attente Push Button pour envoyer
-  else                            delay(FRAME_DELAY);             // Attente FRAME_DELAY pour envoyer
+  else                            delay((FRAME_DELAY<7000)?0:FRAME_DELAY-7000);  // Attente FRAME_DELAY pour envoyer
   Serial1.print(" Sending Text : \"");Serial1.print(frameTx);Serial1.print("\"");
   if(CONFIRMED)   Serial1.print(" Uplink CONFIRMED on PORT ");
   else            Serial1.print(" Uplink UNCONFIRMED on PORT ");
@@ -75,7 +76,7 @@ void transmit(void) {
   } else if(status == LORA_SEND_DELAYED) {
     Serial1.println(" Module is busy : \r\n * It's still trying to send data \r\n OR * \r\n * You are over your allowed duty cycle");
   } else {
-    Serial1.println(" Frame sent");
+    Serial1.println(" Frame sent. Waiting for Downlink...");
   }
 }
 
@@ -90,8 +91,7 @@ void infoBeforeActivation(void){
     Serial1.println("Lora module not ready");
     delay(1000);
   }
-  
-  loraNode.setDutyCycle(false);
+  loraNode.setDutyCycle(false); 
   Serial1.print(" * Device Address :          0x ");
   Serial1.println(devAddr);
   Serial1.print(" * Network Session Key :     0x ");
@@ -114,7 +114,7 @@ void infoBeforeActivation(void){
 
 void infoAfterActivation(void){
    if(SEND_BY_PUSH_BUTTON == 0){
-    Serial1.print(" Frame will be sent every ");Serial1.print(FRAME_DELAY);Serial1.println("\r\n");
+    Serial1.print(" Frame will be sent every ");Serial1.print((FRAME_DELAY<7000)?7000:FRAME_DELAY);Serial1.println("ms\r\n");
   }
   else {
     Serial1.println(" Press Blue Button to send a Frame\r\n");
