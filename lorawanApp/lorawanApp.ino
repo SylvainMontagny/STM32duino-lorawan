@@ -170,13 +170,8 @@ void showConfig(void){
   
   if(SEND_BY_PUSH_BUTTON == true) {Serial1.println(" * Send Frame with Push Button");}
   else                            {Serial1.print(" * Send Frame every ");Serial1.print((FRAME_DELAY<7000)?7000:FRAME_DELAY);Serial1.println("ms");}
-  
-  if(DATA_RATE == 0)              {Serial1.println(" * Data Rate : SF12 BW125");}
-  if(DATA_RATE == 1)              {Serial1.println(" * Data Rate : SF11 BW125");}
-  if(DATA_RATE == 2)              {Serial1.println(" * Data Rate : SF10 BW125");}
-  if(DATA_RATE == 3)              {Serial1.println(" * Data Rate : SF9 BW125");}
-  if(DATA_RATE == 4)              {Serial1.println(" * Data Rate : SF8 BW125");}
-  if(DATA_RATE == 5)              {Serial1.println(" * Data Rate : SF7 BW125");}
+
+  Serial1.print(" * Spreading Factor : SF");Serial1.print(SPREADING_FACTOR);Serial1.print("\r\n");
 
   if(ADAPTIVE_DR == true)         {Serial1.println(" * Adaptive Data Rate : ON");}
   else                            {Serial1.println(" * Adaptive Data Rate : OFF");}
@@ -232,7 +227,7 @@ void infoBeforeActivation(void){
  }
  
  loraNode.setAdaptativeDataRate(DISABLE);
- loraNode.setDataRate(DATA_RATE);
+ loraNode.setDataRate(12-SPREADING_FACTOR);
  if(ADAPTIVE_DR)   loraNode.setAdaptativeDataRate(ENABLE);       
  loraNode.setDutyCycle(DISABLE);
 }
