@@ -29,6 +29,8 @@ void loop()
   if (Serial1.available() > 0)
   {
     c = Serial1.read();
+    if( c=='\r') Serial1.println(); // For implicit CR/LF when a CR is received
+    else    Serial1.print(c);       // For echoeing characters
     SerialLora.print(c);
   }
 }
